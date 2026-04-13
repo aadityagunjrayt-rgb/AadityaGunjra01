@@ -793,7 +793,16 @@
     }
   })();
 
-  // Ripple
+// Ripple
   document.addEventListener('click', e => {
     const r = document.createElement('div');
-    r.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:0;height:0;border-radius:50%;background:rgba(0,245,212,0.2);tra
+    r.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:0;height:0;border-radius:50%;background:rgba(0,245,212,0.22);transform:translate(-50%,-50%);animation:ripOut 0.6s ease-out forwards;pointer-events:none;z-index:9997;`;
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  });
+  const s = document.createElement('style');
+  s.textContent = `@keyframes ripOut { to { width:88px;height:88px;opacity:0; } }`;
+  document.head.appendChild(s);
+</script>
+</body>
+</html>
