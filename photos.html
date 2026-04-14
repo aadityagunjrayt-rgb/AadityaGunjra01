@@ -56,9 +56,6 @@
     background: var(--glass); padding: 4px 10px; border-radius: 20px;
   }
 
-  /* Main content */
-  .main { position: relative; z-index: 1; padding: 110px 16px 60px; max-width: 1000px; margin: 0 auto; }
-
   /* Filters */
   .filter-section { margin-bottom: 30px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border); }
   .filter-group-label {
@@ -89,7 +86,8 @@
   }
 
   /* Masonry grid */
-  .masonry-grid { columns: 2; column-gap: 12px; transition: all 0.5s ease; }
+  .main { position: relative; z-index: 1; padding: 110px 16px 60px; max-width: 1000px; margin: 0 auto; }
+  .masonry-grid { columns: 2; column-gap: 12px; }
   @media (min-width: 600px) { .masonry-grid { columns: 3; } }
   @media (min-width: 900px) { .masonry-grid { columns: 4; } }
 
@@ -124,18 +122,50 @@
   .tag-year { background: rgba(255,225,86,0.15); color: var(--yellow); margin-right: 4px; }
   .tag-location { background: rgba(0,245,212,0.1); color: var(--cyan); }
 
-  /* Lightbox Improvement */
+  /* Lightbox */
   .lightbox {
     position: fixed; inset: 0; z-index: 9990;
     background: rgba(5, 5, 10, 0.98);
     display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px);
   }
   .lightbox.open { display: flex; animation: fadeIn 0.3s; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  .lightbox-img { max-width: 90vw; max-height: 80vh; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+  .lightbox-img { 
+    max-width: 90vw; max-height: 80vh; border-radius: 12px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1; transform: scale(1);
+  }
+  .img-switching { opacity: 0; transform: scale(0.95) translateY(10px); }
   
-  /* Scrollbar */
+  .lightbox-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; font-size: 30px; cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; z-index: 10001;
+  }
+  .lightbox-nav:hover { background: rgba(0,245,212,0.2); border-color: var(--cyan); transform: translateY(-50%) scale(1.1); }
+  .lightbox-prev { left: 20px; }
+  .lightbox-next { right: 20px; }
+
+  .download-btn {
+    position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+    background: var(--glass); border: 1px solid var(--glass-border);
+    color: #fff; padding: 8px 16px; border-radius: 20px;
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+    text-decoration: none; display: flex; align-items: center; gap: 8px;
+    transition: all 0.3s; z-index: 10002; cursor: none;
+  }
+  .download-btn:hover { background: var(--cyan); color: #000; }
+
+  @media (max-width: 600px) {
+    .lightbox-nav { width: 40px; height: 40px; font-size: 24px; }
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+  }
+
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-thumb { background: linear-gradient(var(--pink),var(--cyan)); border-radius: 10px; }
 </style>
@@ -151,7 +181,7 @@
 </div>
 
 <div class="header">
-  <a href="index.html" class="back-btn">← Aaditya</a>
+  <a href="index.html" class="back-btn">← Aaditya Kumar</a>
   <div class="header-title">Gallery</div>
   <div class="photo-count" id="photoCount">0 photos</div>
 </div>
@@ -183,24 +213,28 @@
   </div>
 
   <div class="masonry-grid" id="photoGrid"></div>
-  
   <div class="empty-state" id="emptyState" style="display:none; text-align: center; padding: 50px; opacity: 0.5;">
     <div style="font-size: 40px;">📂</div>
-    <p>No memories found for this filter.</p>
+    <p>No memories found.</p>
   </div>
 </div>
 
 <div class="lightbox" id="lightbox">
-  <button class="lightbox-close" style="position:absolute; top:30px; right:30px; background:none; border:none; color:white; font-size:30px; cursor:none;" onclick="closeLightbox()">✕</button>
+  <div class="lightbox-counter" id="lightboxCounter" style="position: absolute; top: 30px; left: 30px; font-family: 'Syne'; font-size: 14px; color: rgba(255,255,255,0.5);"></div>
+  <a href="#" id="downloadBtn" class="download-btn" download target="_blank">📥 Download</a>
+  <button style="position:absolute; top:30px; right:30px; background:none; border:none; color:white; font-size:30px; cursor:none; z-index:10002;" onclick="closeLightbox()">✕</button>
+  
+  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">‹</button>
   <img class="lightbox-img" id="lightboxImg" src="" alt="">
-  <div style="position:absolute; bottom:40px; text-align:center;">
+  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">›</button>
+
+  <div style="position:absolute; bottom:40px; text-align:center; width: 100%;">
     <div id="lightboxCaption" style="font-family:'Syne'; font-size:18px; font-weight:700;"></div>
     <div id="lightboxMeta" style="margin-top:10px;"></div>
   </div>
 </div>
 
 <script>
-  // Cursor Logic
   const cursor = document.getElementById('cursor');
   const trail = document.getElementById('cursorTrail');
   document.addEventListener('mousemove', e => {
@@ -208,64 +242,84 @@
     setTimeout(() => { trail.style.left = e.clientX + 'px'; trail.style.top = e.clientY + 'px'; }, 60);
   });
 
-  // DATA
   const photos = [
-    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Latest Shoot', year: '2026', location: 'Hazaribagh' },
+    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Latest Memory', year: '2026', location: 'Hazaribagh' },
     { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Winter Morning', year: '2025', location: 'Kota' },
-    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Greenery', year: '2024', location: 'Village' },
-    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'City Lights', year: '2023', location: 'Ranchi' },
-    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Childhood Home', year: 'Old', location: 'Village' },
-    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'School Days', year: '2022', location: 'School' },
+    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Village Vibes', year: '2024', location: 'Village' },
+    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Old Times', year: 'Old', location: 'Village' }
   ];
 
   let currentFilter = { year: 'all', location: 'all' };
+  let currentFilteredPhotos = [];
+  let currentLightboxIndex = 0;
+  let touchStartX = 0;
 
   function renderPhotos() {
     const grid = document.getElementById('photoGrid');
-    const filtered = photos.filter(p => {
-      return (currentFilter.year === 'all' || p.year === currentFilter.year) &&
-             (currentFilter.location === 'all' || p.location === currentFilter.location);
-    });
-
-    document.getElementById('photoCount').textContent = `${filtered.length} photos`;
-    document.getElementById('emptyState').style.display = filtered.length ? 'none' : 'block';
-
-    grid.innerHTML = filtered.map((p, i) => `
-      <div class="photo-item" style="animation-delay: ${i * 0.05}s" onclick="openLightbox('${p.url}', '${p.caption}', '${p.year}', '${p.location}')">
+    currentFilteredPhotos = photos.filter(p => (currentFilter.year === 'all' || p.year === currentFilter.year) && (currentFilter.location === 'all' || p.location === currentFilter.location));
+    document.getElementById('photoCount').textContent = `${currentFilteredPhotos.length} photos`;
+    document.getElementById('emptyState').style.display = currentFilteredPhotos.length ? 'none' : 'block';
+    grid.innerHTML = currentFilteredPhotos.map((p, i) => `
+      <div class="photo-item" style="animation-delay: ${i * 0.05}s" onclick="openLightbox(${i})">
         <img src="${p.url}" alt="${p.caption}" loading="lazy">
-        <div class="photo-overlay">
-          <div class="photo-caption">${p.caption}</div>
-          <div class="photo-meta">
-            <span class="photo-tag tag-year">📅 ${p.year}</span>
-            <span class="photo-tag tag-location">📍 ${p.location}</span>
-          </div>
-        </div>
-      </div>
-    `).join('');
+        <div class="photo-overlay"><div class="photo-caption">${p.caption}</div><div class="photo-meta"><span class="photo-tag tag-year">📅 ${p.year}</span><span class="photo-tag tag-location">📍 ${p.location}</span></div></div>
+      </div>`).join('');
   }
 
   function filterPhotos(type, value) {
     currentFilter[type] = value;
-    const btns = event.target.parentNode.querySelectorAll('.ftab');
-    btns.forEach(b => b.classList.remove('active-tab'));
+    event.target.parentNode.querySelectorAll('.ftab').forEach(b => b.classList.remove('active-tab'));
     event.target.classList.add('active-tab');
     renderPhotos();
   }
 
-  function openLightbox(url, cap, yr, loc) {
-    document.getElementById('lightboxImg').src = url;
-    document.getElementById('lightboxCaption').textContent = cap;
-    document.getElementById('lightboxMeta').innerHTML = `<span class="photo-tag tag-year">📅 ${yr}</span> <span class="photo-tag tag-location">📍 ${loc}</span>`;
+  function openLightbox(index) {
+    currentLightboxIndex = index;
+    updateLightboxContent();
     document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
-  function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
 
-  // Initial Render
+  function navLightbox(dir) {
+    if (currentFilteredPhotos.length <= 1) return;
+    currentLightboxIndex = (currentLightboxIndex + dir + currentFilteredPhotos.length) % currentFilteredPhotos.length;
+    updateLightboxContent();
+  }
+
+  function updateLightboxContent() {
+    const p = currentFilteredPhotos[currentLightboxIndex];
+    const img = document.getElementById('lightboxImg');
+    img.classList.add('img-switching');
+    setTimeout(() => {
+      img.src = p.url;
+      document.getElementById('downloadBtn').href = p.url;
+      document.getElementById('lightboxCaption').textContent = p.caption;
+      document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${currentFilteredPhotos.length}`;
+      document.getElementById('lightboxMeta').innerHTML = `<span class="photo-tag tag-year">📅 ${p.year}</span> <span class="photo-tag tag-location">📍 ${p.location}</span>`;
+      img.classList.remove('img-switching');
+    }, 200);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key === 'ArrowRight') navLightbox(1);
+    if (e.key === 'ArrowLeft') navLightbox(-1);
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  const lb = document.getElementById('lightbox');
+  lb.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; });
+  lb.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) navLightbox(diff > 0 ? 1 : -1);
+  });
+
   renderPhotos();
 </script>
 </body>
 </html>
-
-
-    
