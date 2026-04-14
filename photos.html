@@ -130,13 +130,28 @@
   }
   .lightbox.open { display: flex; animation: fadeIn 0.3s; }
 
-  .lightbox-img { 
-    max-width: 90vw; max-height: 80vh; border-radius: 12px; 
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 1; transform: scale(1);
+  /* New Sliding Card Container */
+  .lightbox-card-container {
+    position: relative;
+    width: 90vw; height: 80vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; /* Hide cards sliding out */
   }
-  .img-switching { opacity: 0; transform: scale(0.95) translateY(10px); }
+
+  .lightbox-img { 
+    max-width: 100%; max-height: 100%; 
+    border-radius: 12px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    /* Transition for slide and fade */
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease;
+    position: absolute; /* Stack cards */
+    backface-visibility: hidden;
+  }
+
+  /* Card States for Animation */
+  .card-next { transform: translateX(100%) scale(0.9) rotate(5deg); opacity: 0; z-index: 1; }
+  .card-prev { transform: translateX(-100%) scale(0.9) rotate(-5deg); opacity: 0; z-index: 1; }
+  .card-active { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; z-index: 2; }
   
   .lightbox-nav {
     position: absolute; top: 50%; transform: translateY(-50%);
@@ -225,7 +240,10 @@
   <button style="position:absolute; top:30px; right:30px; background:none; border:none; color:white; font-size:30px; cursor:none; z-index:10002;" onclick="closeLightbox()">✕</button>
   
   <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">‹</button>
-  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+  
+  <div class="lightbox-card-container" id="cardContainer">
+    </div>
+  
   <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">›</button>
 
   <div style="position:absolute; bottom:40px; text-align:center; width: 100%;">
@@ -275,7 +293,7 @@
 
   function openLightbox(index) {
     currentLightboxIndex = index;
-    updateLightboxContent();
+    setupLightboxCards(); // Initial setup
     document.getElementById('lightbox').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -285,25 +303,89 @@
     document.body.style.overflow = '';
   }
 
-  function navLightbox(dir) {
-    if (currentFilteredPhotos.length <= 1) return;
-    currentLightboxIndex = (currentLightboxIndex + dir + currentFilteredPhotos.length) % currentFilteredPhotos.length;
-    updateLightboxContent();
+  // --- Core logic for Sliding Card Animation ---
+
+  function setupLightboxCards() {
+    const container = document.getElementById('cardContainer');
+    container.innerHTML = ''; // Clear previous cards
+
+    if (currentFilteredPhotos.length === 0) return;
+
+    // We need 3 images for smooth circular sliding: Prev, Active, Next
+    const total = currentFilteredPhotos.length;
+    const prevIdx = (currentLightboxIndex - 1 + total) % total;
+    const nextIdx = (currentLightboxIndex + 1) % total;
+
+    // Create img elements
+    const activeImg = createCard(currentFilteredPhotos[currentLightboxIndex].url, 'card-active');
+    
+    // Only add prev/next if there's more than one photo
+    if (total > 1) {
+        const prevImg = createCard(currentFilteredPhotos[prevIdx].url, 'card-prev');
+        const nextImg = createCard(currentFilteredPhotos[nextIdx].url, 'card-next');
+        container.appendChild(prevImg);
+        container.appendChild(nextImg);
+    }
+    
+    container.appendChild(activeImg);
+
+    updateLightboxDetails(); // Update text, download link, etc.
   }
 
-  function updateLightboxContent() {
-    const p = currentFilteredPhotos[currentLightboxIndex];
-    const img = document.getElementById('lightboxImg');
-    img.classList.add('img-switching');
-    setTimeout(() => {
-      img.src = p.url;
-      document.getElementById('downloadBtn').href = p.url;
-      document.getElementById('lightboxCaption').textContent = p.caption;
-      document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${currentFilteredPhotos.length}`;
-      document.getElementById('lightboxMeta').innerHTML = `<span class="photo-tag tag-year">📅 ${p.year}</span> <span class="photo-tag tag-location">📍 ${p.location}</span>`;
-      img.classList.remove('img-switching');
-    }, 200);
+  function createCard(url, className) {
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = `lightbox-img ${className}`;
+    img.alt = 'Gallery image';
+    return img;
   }
+
+  function navLightbox(dir) {
+    const total = currentFilteredPhotos.length;
+    if (total <= 1) return;
+
+    const container = document.getElementById('cardContainer');
+    const cards = container.querySelectorAll('.lightbox-img');
+
+    // Identify current active, prev, next card elements
+    let activeCard, prevCard, nextCard;
+    cards.forEach(card => {
+        if (card.classList.contains('card-active')) activeCard = card;
+        if (card.classList.contains('card-prev')) prevCard = card;
+        if (card.classList.contains('card-next')) nextCard = card;
+    });
+
+    // Trigger Animation by switching classes
+    if (dir === 1) { // Sliding Next
+        activeCard.className = 'lightbox-img card-prev'; // Current becomes prev
+        nextCard.className = 'lightbox-img card-active'; // Next becomes active
+        // Prev card is now useless, will remove later
+        if(prevCard) prevCard.style.opacity = '0'; 
+    } else { // Sliding Prev
+        activeCard.className = 'lightbox-img card-next'; // Current becomes next
+        prevCard.className = 'lightbox-img card-active'; // Prev becomes active
+        // Next card is now useless, will remove later
+        if(nextCard) nextCard.style.opacity = '0';
+    }
+
+    // Update index
+    currentLightboxIndex = (currentLightboxIndex + dir + total) % total;
+
+    // Wait for animation to finish, then reset DOM with new active/prev/next
+    setTimeout(() => {
+        setupLightboxCards(); // Re-render DOM for next potential slide
+    }, 600); // Must match CSS transition time
+  }
+
+  function updateLightboxDetails() {
+    const p = currentFilteredPhotos[currentLightboxIndex];
+    document.getElementById('downloadBtn').href = p.url;
+    document.getElementById('lightboxCaption').textContent = p.caption;
+    document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${currentFilteredPhotos.length}`;
+    document.getElementById('lightboxMeta').innerHTML = `<span class="photo-tag tag-year">📅 ${p.year}</span> <span class="photo-tag tag-location">📍 ${p.location}</span>`;
+  }
+
+  // --- End of Sliding Card Logic ---
 
   document.addEventListener('keydown', e => {
     if (!document.getElementById('lightbox').classList.contains('open')) return;
@@ -322,4 +404,4 @@
   renderPhotos();
 </script>
 </body>
-</html>
+    </html>
