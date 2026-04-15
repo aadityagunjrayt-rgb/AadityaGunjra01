@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photos · Aaditya Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #ff3cac; --purple: #784ba0; --blue: #2b86c5;
+    --cyan: #00f5d4; --yellow: #ffe156; --orange: #ff6b35; --green: #06d6a0;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #0a0a0f; color: #fff; overflow-x: hidden; cursor: none; }
+
+  /* Custom Cursor */
+  .cursor { position: fixed; width: 18px; height: 18px; border-radius: 50%; background: var(--cyan); pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: difference; transition: transform 0.1s ease; }
+  .cursor-trail { position: fixed; width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--pink); pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: left 0.15s ease, top 0.15s ease, transform 0.2s; }
+
+  /* BG Blobs */
+  .bg-blobs { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18; animation: float 20s infinite alternate; }
+  .blob1 { width: 500px; height: 500px; background: var(--pink); top: -100px; left: -100px; }
+  .blob2 { width: 400px; height: 400px; background: var(--blue); top: 30%; right: -80px; animation-delay: -5s; }
+  .blob3 { width: 350px; height: 350px; background: var(--purple); bottom: 10%; left: 20%; animation-delay: -10s; }
+  
+  @keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(50px, 40px) scale(1.1); }
+  }
+
+  /* Header */
+  .header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,10,15,0.8); backdrop-filter: blur(30px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.6); text-decoration: none;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: none; transition: color 0.3s;
+  }
+  .back-btn:hover { color: var(--cyan); }
+  .header-title {
+    font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800;
+    background: linear-gradient(135deg, var(--pink), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .photo-count {
+    font-family: 'Syne', sans-serif; font-size: 12px; color: rgba(255,255,255,0.35);
+    background: var(--glass); padding: 4px 10px; border-radius: 20px;
+  }
+
+  /* Filters */
+  .filter-section { margin-bottom: 30px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border); }
+  .filter-group-label {
+    font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 2px;
+    color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .filter-group-label::after { content: ''; height: 1px; flex-grow: 1; background: var(--glass-border); }
+  
+  .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .ftab {
+    padding: 8px 16px; border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass); color: rgba(255,255,255,0.5);
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+    cursor: none; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .ftab:hover { border-color: var(--cyan); color: #fff; transform: translateY(-2px); }
+  
+  .ftab.active-tab {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent; color: #fff;
+    box-shadow: 0 8px 20px rgba(255,60,172,0.25);
+  }
+  .ftab.year-tab.active-tab { 
+    background: linear-gradient(135deg, var(--cyan), var(--blue)); 
+    box-shadow: 0 8px 20px rgba(0,245,212,0.25); 
+  }
+
+  /* Masonry grid */
+  .main { position: relative; z-index: 1; padding: 110px 16px 60px; max-width: 1000px; margin: 0 auto; }
+  .masonry-grid { columns: 2; column-gap: 12px; }
+  @media (min-width: 600px) { .masonry-grid { columns: 3; } }
+  @media (min-width: 900px) { .masonry-grid { columns: 4; } }
+
+  .photo-item {
+    break-inside: avoid; margin-bottom: 12px; border-radius: 16px;
+    overflow: hidden; position: relative; cursor: none;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    animation: fadeInScale 0.6s backwards;
+  }
+  
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .photo-item img { width: 100%; display: block; transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); }
+  .photo-item:hover img { transform: scale(1.1); }
+
+  .photo-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(10,10,15,0.9) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.3s;
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 15px;
+  }
+  .photo-item:hover .photo-overlay { opacity: 1; }
+  
+  .photo-caption { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .photo-tag {
+    padding: 3px 10px; border-radius: 50px; font-size: 10px;
+    font-family: 'Syne', sans-serif; font-weight: 700; display: inline-block;
+  }
+  .tag-year { background: rgba(255,225,86,0.15); color: var(--yellow); margin-right: 4px; }
+  .tag-location { background: rgba(0,245,212,0.1); color: var(--cyan); }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 9990;
+    background: rgba(5, 5, 10, 0.98);
+    display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px);
+  }
+  .lightbox.open { display: flex; animation: fadeIn 0.3s; }
+
+  /* New Sliding Card Container */
+  .lightbox-card-container {
+    position: relative;
+    width: 90vw; height: 80vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; /* Hide cards sliding out */
+  }
+
+  .lightbox-img { 
+    max-width: 100%; max-height: 100%; 
+    border-radius: 12px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    /* Transition for slide and fade */
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease;
+    position: absolute; /* Stack cards */
+    backface-visibility: hidden;
+  }
+
+  /* Card States for Animation */
+  .card-next { transform: translateX(100%) scale(0.9) rotate(5deg); opacity: 0; z-index: 1; }
+  .card-prev { transform: translateX(-100%) scale(0.9) rotate(-5deg); opacity: 0; z-index: 1; }
+  .card-active { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; z-index: 2; }
+  
+  .lightbox-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; font-size: 30px; cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; z-index: 10001;
+  }
+  .lightbox-nav:hover { background: rgba(0,245,212,0.2); border-color: var(--cyan); transform: translateY(-50%) scale(1.1); }
+  .lightbox-prev { left: 20px; }
+  .lightbox-next { right: 20px; }
+
+  .download-btn {
+    position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+    background: var(--glass); border: 1px solid var(--glass-border);
+    color: #fff; padding: 8px 16px; border-radius: 20px;
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+    text-decoration: none; display: flex; align-items: center; gap: 8px;
+    transition: all 0.3s; z-index: 10002; cursor: none;
+  }
+  .download-btn:hover { background: var(--cyan); color: #000; }
+
+  @media (max-width: 600px) {
+    .lightbox-nav { width: 40px; height: 40px; font-size: 24px; }
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(var(--pink),var(--cyan)); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<div class="bg-blobs">
+  <div class="blob blob1"></div><div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<div class="header">
+  <a href="index.html" class="back-btn">← Aaditya Kumar</a>
+  <div class="header-title">Gallery</div>
+  <div class="photo-count" id="photoCount">0 photos</div>
+</div>
+
+<div class="main">
+  <div class="filter-section">
+    <div class="filter-group-label">Timeline</div>
+    <div class="filter-tabs" id="yearTabs">
+      <button class="ftab year-tab active-tab" onclick="filterPhotos('year','all')">All Time</button>
+      <button class="ftab year-tab" onclick="filterPhotos('year','2026')">2026</button>
+      <button class="ftab year-tab" onclick="filterPhotos('year','2025')">2025</button>
+      <button class="ftab year-tab" onclick="filterPhotos('year','2024')">2024</button>
+      <button class="ftab year-tab" onclick="filterPhotos('year','2023')">2023</button>
+      <button class="ftab year-tab" onclick="filterPhotos('year','2022')">2022</button>
+      <button class="ftab year-tab" onclick="filterPhotos('year','2021')">2021</button>
+      <button class="ftab year-tab" onclick="filterPhotos('year','2020')">2020</button>
+      <button class="ftab year-tab" onclick="filterPhotos('year','Old')">⌛ Old</button>
+    </div>
+
+    <div class="filter-group-label">Places</div>
+    <div class="filter-tabs" id="locationTabs">
+      <button class="ftab active-tab" onclick="filterPhotos('location','all')">Everywhere</button>
+      <button class="ftab" onclick="filterPhotos('location','Village')">🏠 Village</button>
+      <button class="ftab" onclick="filterPhotos('location','Ranchi')">🏙️ Ranchi</button>
+      <button class="ftab" onclick="filterPhotos('location','Hazaribagh')">🌿 Hazaribagh</button>
+      <button class="ftab" onclick="filterPhotos('location','Kota')">📚 Kota</button>
+      <button class="ftab" onclick="filterPhotos('location','School')">🏫 School</button>
+    </div>
+  </div>
+
+  <div class="masonry-grid" id="photoGrid"></div>
+  <div class="empty-state" id="emptyState" style="display:none; text-align: center; padding: 50px; opacity: 0.5;">
+    <div style="font-size: 40px;">📂</div>
+    <p>No memories found.</p>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-counter" id="lightboxCounter" style="position: absolute; top: 30px; left: 30px; font-family: 'Syne'; font-size: 14px; color: rgba(255,255,255,0.5);"></div>
+  <a href="#" id="downloadBtn" class="download-btn" download target="_blank">📥 Download</a>
+  <button style="position:absolute; top:30px; right:30px; background:none; border:none; color:white; font-size:30px; cursor:none; z-index:10002;" onclick="closeLightbox()">✕</button>
+  
+  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">‹</button>
+  
+  <div class="lightbox-card-container" id="cardContainer">
+    </div>
+  
+  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">›</button>
+
+  <div style="position:absolute; bottom:40px; text-align:center; width: 100%;">
+    <div id="lightboxCaption" style="font-family:'Syne'; font-size:18px; font-weight:700;"></div>
+    <div id="lightboxMeta" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const trail = document.getElementById('cursorTrail');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+    setTimeout(() => { trail.style.left = e.clientX + 'px'; trail.style.top = e.clientY + 'px'; }, 60);
+  });
+
+  const photos = [
+
+    
+
+
+    
+    { url: 'https://i.ibb.co/4wtyPxV0/Untitled-design-20260414-210442-0000.png', caption: 'Others', year: '2026', location: 'Village' },
+    { url: 'https://i.ibb.co/zhKJL931/IMG-20260415-014450.jpg', caption: 'Latest Memory', year: '2026', location: 'Village' },
+    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Winter Morning', year: '2025', location: 'Kota' },
+    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Village Vibes', year: '2024', location: 'Village' },
+    { url: 'https://i.ibb.co/Rp3Jfw2W/IMG-20241202-155801-327.jpg', caption: 'Random Night', year: '2024', location: 'Village' },
+    { url: 'https://i.ibb.co/n8LdfSDm/IMG-20260414-055513-136.jpg', caption: 'Old Times', year: 'Old', location: 'Village' }
+    { url: 'https://i.ibb.co/tMsFQ9vH/IMG-20241218-010426-729.jpg', caption: 'With Panjit', year: 'Old', location: 'Village' }
+  
+  
+  
+  
+  
+  
+  
+  ];
+
+  let currentFilter = { year: 'all', location: 'all' };
+  let currentFilteredPhotos = [];
+  let currentLightboxIndex = 0;
+  let touchStartX = 0;
+
+  function renderPhotos() {
+    const grid = document.getElementById('photoGrid');
+    currentFilteredPhotos = photos.filter(p => (currentFilter.year === 'all' || p.year === currentFilter.year) && (currentFilter.location === 'all' || p.location === currentFilter.location));
+    document.getElementById('photoCount').textContent = `${currentFilteredPhotos.length} photos`;
+    document.getElementById('emptyState').style.display = currentFilteredPhotos.length ? 'none' : 'block';
+    grid.innerHTML = currentFilteredPhotos.map((p, i) => `
+      <div class="photo-item" style="animation-delay: ${i * 0.05}s" onclick="openLightbox(${i})">
+        <img src="${p.url}" alt="${p.caption}" loading="lazy">
+        <div class="photo-overlay"><div class="photo-caption">${p.caption}</div><div class="photo-meta"><span class="photo-tag tag-year">📅 ${p.year}</span><span class="photo-tag tag-location">📍 ${p.location}</span></div></div>
+      </div>`).join('');
+  }
+
+  function filterPhotos(type, value) {
+    currentFilter[type] = value;
+    event.target.parentNode.querySelectorAll('.ftab').forEach(b => b.classList.remove('active-tab'));
+    event.target.classList.add('active-tab');
+    renderPhotos();
+  }
+
+  function openLightbox(index) {
+    currentLightboxIndex = index;
+    setupLightboxCards(); // Initial setup
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // --- Core logic for Sliding Card Animation ---
+
+  function setupLightboxCards() {
+    const container = document.getElementById('cardContainer');
+    container.innerHTML = ''; // Clear previous cards
+
+    if (currentFilteredPhotos.length === 0) return;
+
+    // We need 3 images for smooth circular sliding: Prev, Active, Next
+    const total = currentFilteredPhotos.length;
+    const prevIdx = (currentLightboxIndex - 1 + total) % total;
+    const nextIdx = (currentLightboxIndex + 1) % total;
+
+    // Create img elements
+    const activeImg = createCard(currentFilteredPhotos[currentLightboxIndex].url, 'card-active');
+    
+    // Only add prev/next if there's more than one photo
+    if (total > 1) {
+        const prevImg = createCard(currentFilteredPhotos[prevIdx].url, 'card-prev');
+        const nextImg = createCard(currentFilteredPhotos[nextIdx].url, 'card-next');
+        container.appendChild(prevImg);
+        container.appendChild(nextImg);
+    }
+    
+    container.appendChild(activeImg);
+
+    updateLightboxDetails(); // Update text, download link, etc.
+  }
+
+  function createCard(url, className) {
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = `lightbox-img ${className}`;
+    img.alt = 'Gallery image';
+    return img;
+  }
+
+  function navLightbox(dir) {
+    const total = currentFilteredPhotos.length;
+    if (total <= 1) return;
+
+    const container = document.getElementById('cardContainer');
+    const cards = container.querySelectorAll('.lightbox-img');
+
+    // Identify current active, prev, next card elements
+    let activeCard, prevCard, nextCard;
+    cards.forEach(card => {
+        if (card.classList.contains('card-active')) activeCard = card;
+        if (card.classList.contains('card-prev')) prevCard = card;
+        if (card.classList.contains('card-next')) nextCard = card;
+    });
+
+    // Trigger Animation by switching classes
+    if (dir === 1) { // Sliding Next
+        activeCard.className = 'lightbox-img card-prev'; // Current becomes prev
+        nextCard.className = 'lightbox-img card-active'; // Next becomes active
+        // Prev card is now useless, will remove later
+        if(prevCard) prevCard.style.opacity = '0'; 
+    } else { // Sliding Prev
+        activeCard.className = 'lightbox-img card-next'; // Current becomes next
+        prevCard.className = 'lightbox-img card-active'; // Prev becomes active
+        // Next card is now useless, will remove later
+        if(nextCard) nextCard.style.opacity = '0';
+    }
+
+    // Update index
+    currentLightboxIndex = (currentLightboxIndex + dir + total) % total;
+
+    // Wait for animation to finish, then reset DOM with new active/prev/next
+    setTimeout(() => {
+        setupLightboxCards(); // Re-render DOM for next potential slide
+    }, 600); // Must match CSS transition time
+  }
+
+  function updateLightboxDetails() {
+    const p = currentFilteredPhotos[currentLightboxIndex];
+    document.getElementById('downloadBtn').href = p.url;
+    document.getElementById('lightboxCaption').textContent = p.caption;
+    document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${currentFilteredPhotos.length}`;
+    document.getElementById('lightboxMeta').innerHTML = `<span class="photo-tag tag-year">📅 ${p.year}</span> <span class="photo-tag tag-location">📍 ${p.location}</span>`;
+  }
+
+  // --- End of Sliding Card Logic ---
+
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key === 'ArrowRight') navLightbox(1);
+    if (e.key === 'ArrowLeft') navLightbox(-1);
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  const lb = document.getElementById('lightbox');
+  lb.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; });
+  lb.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) navLightbox(diff > 0 ? 1 : -1);
+  });
+
+  renderPhotos();
+</script>
+</body>
+        </html>
