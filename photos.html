@@ -236,7 +236,7 @@
 
 <div class="lightbox" id="lightbox">
   <div class="lightbox-counter" id="lightboxCounter" style="position: absolute; top: 30px; left: 30px; font-family: 'Syne'; font-size: 14px; color: rgba(255,255,255,0.5);"></div>
-  <a href="#" id="downloadBtn" class="download-btn" download target="_blank">📥 Download</a>
+  <button id="downloadBtn" class="download-btn">📥 Download</button>
   <button style="position:absolute; top:30px; right:30px; background:none; border:none; color:white; font-size:30px; cursor:none; z-index:10002;" onclick="closeLightbox()">✕</button>
   
   <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">‹</button>
@@ -394,7 +394,14 @@
 
   function updateLightboxDetails() {
     const p = currentFilteredPhotos[currentLightboxIndex];
-    document.getElementById('downloadBtn').href = p.url;
+    document.getElementById('downloadBtn').onclick = () => 
+  forceDownload(
+    p.url,
+    p.caption
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]/g, "") + ".jpg"
+  );
     document.getElementById('lightboxCaption').textContent = p.caption;
     document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${currentFilteredPhotos.length}`;
     document.getElementById('lightboxMeta').innerHTML = `<span class="photo-tag tag-year">📅 ${p.year}</span> <span class="photo-tag tag-location">📍 ${p.location}</span>`;
@@ -415,6 +422,28 @@
     const diff = touchStartX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) navLightbox(diff > 0 ? 1 : -1);
   });
+
+  
+// focre download system by ChatGPT 
+  function forceDownload(url, name) {
+  fetch(url)
+    .then(res => res.blob())
+    .then(blob => {
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    })
+    .catch(() => {
+      window.open(url, "_blank");
+    });
+  }
+
+
+
 
   renderPhotos();
 </script>
