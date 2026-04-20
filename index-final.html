@@ -331,6 +331,17 @@
     .friends-grid { grid-template-columns: repeat(2,1fr); }
     .pro-contact-card { flex-direction: column; text-align: center; }
   }
+     /* Relationship Status Lock Card*/
+     .rel-lock { position:absolute; inset:0; background:rgba(10,10,15,0.92); border-radius:24px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; z-index:10; transition: opacity 0.5s ease; }
+     .rel-lock.unlocked { opacity:0; pointer-events:none; }
+     .lock-icon { font-size:52px; transition: transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275); }
+     .lock-icon.open { transform: rotate(-20deg) scale(1.2); }
+     .lock-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#fff; }
+     .lock-sub { font-size:12px; color:rgba(255,255,255,0.4); }
+     .view-btn { position:absolute; top:14px; right:14px; z-index:11; padding:7px 14px; border-radius:50px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); font-family:'Syne',sans-serif; font-size:11px; font-weight:700; cursor:none; transition:all 0.3s; }
+     .view-btn:hover { background:rgba(0,245,212,0.15); color:var(--cyan); border-color:var(--cyan); }
+  /*Relationship Status Lock Card End*/
+  
 </style>
 </head>
 <body>
@@ -515,6 +526,16 @@
   <div class="sec">
     <div class="section-label">Relationship Status</div>
     <div class="hiring-card">
+      <!-- Relationship Status Lock Card!-->>
+      <button class="view-btn" onclick="toggleLock()">👁️ View</button>
+  <div class="rel-lock" id="relLock">
+    <div class="lock-icon" id="lockIcon">🔒</div>
+    <div class="lock-title">Freedom / Focused</div>
+    <div class="lock-sub">Tap to peek inside 👀</div>
+  </div>
+      
+      <!-- Relationship Status Lock Card END !-->>
+      
       <span class="hiring-emoji">📋</span>
       <div class="hiring-badge">🔴 Position Open</div>
       <div class="hiring-title">Now Hiring</div>
@@ -808,6 +829,25 @@
   const s = document.createElement('style');
   s.textContent = `@keyframes ripOut { to { width:88px;height:88px;opacity:0; } }`;
   document.head.appendChild(s);
+  
+  // Relationship Status Lock Card
+  function toggleLock() {
+  const lock = document.getElementById('relLock');
+  const icon = document.getElementById('lockIcon');
+  const btn = event.target;
+  if (lock.classList.contains('unlocked')) {
+    lock.classList.remove('unlocked');
+    icon.classList.remove('open');
+    icon.textContent = '🔒';
+    btn.textContent = '👁️ View';
+  } else {
+    icon.classList.add('open');
+    icon.textContent = '🔓';
+    btn.textContent = '🔒 Hide';
+    setTimeout(() => lock.classList.add('unlocked'), 400);
+  }
+  }
+  // relationship status lock card END
 </script>
 </body>
 </html>
