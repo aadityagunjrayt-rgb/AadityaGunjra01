@@ -13,9 +13,11 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'DM Sans', sans-serif; background: #0a0a0f; color: #fff; overflow-x: hidden; cursor: none; }
 
-  .cursor { position: fixed; width: 18px; height: 18px; border-radius: 50%; background: var(--cyan); pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: difference; }
-  .cursor-trail { position: fixed; width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--pink); pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: left 0.15s ease, top 0.15s ease; }
-
+  .cursor { position: fixed; width: 18px; height: 18px; border-radius: 50%; background: var(--cyan); pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: difference; opacity: 0;
+transition: opacity 0.9s ease; }
+  .cursor-trail { position: fixed; width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--pink); pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: left 0.15s ease, top 0.15s ease; opacity: 0;
+transition: left 0.15s ease, top 0.15s ease, opacity 0.9s ease; }
+  
   .bg-blobs { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.25; animation: blobFloat 8s ease-in-out infinite alternate; }
   .blob1 { width: 500px; height: 500px; background: var(--pink); top: -100px; left: -100px; }
@@ -737,13 +739,19 @@
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Cursor
-  const cursor = document.getElementById('cursor');
+ const cursor = document.getElementById('cursor');
   const trail = document.getElementById('cursorTrail');
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
     setTimeout(() => { trail.style.left = e.clientX + 'px'; trail.style.top = e.clientY + 'px'; }, 80);
+    trail.style.opacity = '1';
+    clearTimeout(window.trailTimer);
+    window.trailTimer = setTimeout(() => { trail.style.opacity = '0'; }, 500);
+    cursor.style.opacity = '1';
+clearTimeout(window.cursorTimer);
+window.cursorTimer = setTimeout(() => { cursor.style.opacity = '0'; }, 500);
   });
-
+  
   // Mobile: hide toggle on scroll down, show on scroll up
   let lastScroll = 0;
   const toggle = document.getElementById('modeToggle');
