@@ -743,13 +743,13 @@ transition: left 0.15s ease, top 0.15s ease, opacity 0.9s ease; }
   const trail = document.getElementById('cursorTrail');
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
-    setTimeout(() => { trail.style.left = e.clientX + 'px'; trail.style.top = e.clientY + 'px'; }, 80);
+    setTimeout(() => { trail.style.left = e.clientX + 'px'; trail.style.top = e.clientY + 'px'; }, 20);
     trail.style.opacity = '1';
     clearTimeout(window.trailTimer);
-    window.trailTimer = setTimeout(() => { trail.style.opacity = '0'; }, 500);
+    window.trailTimer = setTimeout(() => { trail.style.opacity = '0'; }, 250);
     cursor.style.opacity = '1';
 clearTimeout(window.cursorTimer);
-window.cursorTimer = setTimeout(() => { cursor.style.opacity = '0'; }, 500);
+window.cursorTimer = setTimeout(() => { cursor.style.opacity = '0'; }, 250);
   });
   
   // Mobile: hide toggle on scroll down, show on scroll up
