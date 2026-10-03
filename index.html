@@ -1615,22 +1615,26 @@ h1, h2, h3, h4 { overflow-wrap: break-word; }
     }
   }
 
-  window.addEventListener('hashchange', () => render(false));
+ window.addEventListener('hashchange', () => {
+  render(true);
+});
 
-  // Clicking a link that points to the current hash does not fire hashchange, so handle it here.
-  document.addEventListener('click', e => {
-    const link = e.target.closest('a[href^="#/"]');
-    if (!link) return;
-    if (link.hash === location.hash || (link.getAttribute('href') === '#/' && !location.hash)) {
-      e.preventDefault();
-      render(true);
-    }
-    if (menu.open && menu.contains(link)) {
-      html.classList.remove('menu-open');
-      closeMenu();
-    }
-  });
+// Handle links pointing to the current route as well.
+document.addEventListener('click', e => {
+  const link = e.target.closest('a[href^="#/"]');
+  if (!link) return;
 
+  if (link.hash === location.hash) {
+    e.preventDefault();
+    render(true);
+  }
+
+  if (menu.open && menu.contains(link)) {
+    html.classList.remove('menu-open');
+    closeMenu();
+  }
+});
+  
   /* ------------------------------------------------------------------
      Menu (native <dialog>: focus trap, Esc and inert background built in)
      ------------------------------------------------------------------ */
