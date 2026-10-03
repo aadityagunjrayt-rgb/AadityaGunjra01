@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gold and Silver Live Price Tracker | Aaditya Kumar</title>
+<meta name="description" content="Free live gold and silver spot prices in INR and USD. View prices per gram, 10 grams, tola, kilogram or ounce, and calculate the value of your gold or silver by weight and purity.">
+<meta name="author" content="Aaditya Kumar">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://aadityakumar.in/tools/gold-and-silver-live-tracker.html">
+<meta property="og:title" content="Gold and Silver Live Price Tracker">
+<meta property="og:description" content="Free live gold and silver spot prices in INR and USD with a weight and purity calculator.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aadityakumar.in/tools/gold-and-silver-live-tracker.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --line: #e3e6ea;
+    --text: #151a20;
+    --muted: #5d6874;
+    --accent: #1f4fd8;
+    --accent-hover: #173fb0;
+    --gold: #b88a1e;
+    --silver: #7b8794;
+    --up: #14783d;
+    --down: #b3261e;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 3px solid #86a8f5; outline-offset: 2px; border-radius: 6px; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+  /* top bar */
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 12px; }
+  .brand { font-weight: 700; color: var(--text); font-size: 1rem; }
+  .brand:hover { text-decoration: none; color: var(--accent); }
+  .nav { display: flex; gap: 6px; align-items: center; }
+  .nav a { color: var(--muted); font-weight: 500; font-size: 0.92rem; padding: 7px 12px; border-radius: 8px; }
+  .nav a:hover { background: var(--bg); color: var(--text); text-decoration: none; }
+  .nav a.current { color: var(--text); }
+
+  main { padding: 36px 0 20px; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+  .lead { color: var(--muted); margin-top: 8px; max-width: 60ch; }
+
+  html { scroll-behavior: smooth; }
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 26px 0 14px; }
+  .controls .btn { padding: 8px 16px; font-size: 0.88rem; }
+  .controls .status { margin-left: auto; }
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px;
+    color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+  }
+  .icon-btn:hover { border-color: #c4cad1; background: var(--bg); }
+  .icon-btn:disabled { cursor: default; opacity: 0.7; }
+  .icon-btn.spinning svg { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .calc { scroll-margin-top: 16px; }
+  .seg { display: inline-flex; background: #e9ecf0; border-radius: 9px; padding: 3px; }
+  .seg button {
+    font: inherit; font-weight: 600; font-size: 0.88rem; color: var(--muted);
+    background: transparent; border: 0; border-radius: 7px; padding: 6px 16px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+  .status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.86rem; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #aab2bb; flex: none; }
+  .status.live .dot { background: #1fa65a; }
+  .status.error .dot { background: var(--down); }
+  .status.error { color: var(--down); }
+  .btn-ghost {
+    font: inherit; font-weight: 600; font-size: 0.86rem; color: var(--text); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+  }
+  .btn-ghost:hover { border-color: #c4cad1; }
+  .btn-ghost:disabled { opacity: 0.6; cursor: default; }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .metal { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.05rem; }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; }
+  .swatch.gold { background: var(--gold); }
+  .swatch.silver { background: var(--silver); }
+  select {
+    font: inherit; font-size: 0.88rem; font-weight: 500; color: var(--text);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; cursor: pointer;
+  }
+  .price { font-size: clamp(2rem, 6vw, 2.7rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; margin: 18px 0 2px; word-break: break-word; }
+  .price.flash-up { animation: flashUp 1s ease-out; }
+  .price.flash-down { animation: flashDown 1s ease-out; }
+  @keyframes flashUp { from { color: var(--up); } to { color: var(--text); } }
+  @keyframes flashDown { from { color: var(--down); } to { color: var(--text); } }
+  .per { color: var(--muted); font-size: 0.9rem; }
+  .change { margin-top: 12px; font-size: 0.9rem; font-weight: 500; color: var(--muted); }
+  .change.up { color: var(--up); }
+  .change.down { color: var(--down); }
+  .card { padding-bottom: 18px; }
+  .spark { width: 100%; height: 34px; display: block; margin-top: 8px; }
+  .spark.empty { display: none; }
+  .spark polyline { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .spark.gold polyline { stroke: var(--gold); }
+  .spark.silver polyline { stroke: var(--silver); }
+
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+  .fact { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .fact .k { color: var(--muted); font-size: 0.84rem; }
+  .fact .v { font-size: 1.25rem; font-weight: 600; margin-top: 2px; }
+
+  .calc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-top: 16px; }
+  .calc h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; }
+  .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .field label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  .field input, .field select { width: 100%; font: inherit; font-size: 0.95rem; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+  .result { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+  .result .big { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; }
+  .result .small { color: var(--muted); font-size: 0.84rem; }
+
+  .note { color: var(--muted); font-size: 0.84rem; margin-top: 20px; max-width: 72ch; }
+
+  /* developer / more tools */
+  .about { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-top: 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+  .about h2 { font-size: 1rem; font-weight: 600; }
+  .about p { color: var(--muted); font-size: 0.92rem; margin-top: 2px; }
+  .about-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn { display: inline-block; font-weight: 600; font-size: 0.92rem; padding: 10px 18px; border-radius: 9px; border: 1px solid var(--accent); }
+  .btn:hover { text-decoration: none; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-outline { background: var(--surface); color: var(--accent); }
+  .btn-outline:hover { background: #eef2fd; }
+
+  footer { margin-top: 36px; border-top: 1px solid var(--line); background: var(--surface); }
+  footer .wrap { padding-top: 18px; padding-bottom: 22px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; color: var(--muted); font-size: 0.85rem; }
+
+  @media (max-width: 720px) {
+    .cards, .facts { grid-template-columns: 1fr; }
+    .calc-grid { grid-template-columns: 1fr 1fr; }
+    .nav a.hide-sm { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .icon-btn.spinning svg { animation: none; }
+    .price.flash-up, .price.flash-down { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="https://aadityakumar.in/">Aaditya Kumar</a>
+    <nav class="nav" aria-label="Site">
+      <a class="hide-sm" href="https://aadityakumar.in/">Home</a>
+      <a class="current" href="https://aadityakumar.in/tools">More Tools</a>
+    </nav>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <h1>Gold and Silver Live Price</h1>
+    <p class="lead">Live spot prices in INR and USD. Choose your unit and calculate the value of your gold or silver.</p>
+
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Currency">
+        <button type="button" data-cur="INR" aria-pressed="true">INR ₹</button>
+        <button type="button" data-cur="USD" aria-pressed="false">USD $</button>
+      </div>
+      <a class="btn btn-primary" href="#calculator">Calculate value</a>
+      <div class="status" id="status" role="status" aria-live="polite">
+        <span class="dot"></span><span id="statusText">Loading prices…</span>
+        <button type="button" class="icon-btn" id="refreshBtn" aria-label="Refresh prices" title="Refresh prices">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <section class="cards" aria-label="Live prices">
+      <article class="card">
+        <div class="card-head">
+          <div class="metal"><span class="swatch gold"></span>Gold</div>
+          <select id="unitXAU" aria-label="Gold price unit"></select>
+        </div>
+        <div class="price" id="priceXAU">–</div>
+        <div class="per" id="perXAU">&nbsp;</div>
+        <div class="change" id="changeXAU"></div>
+        <svg class="spark gold" id="sparkXAU" viewBox="0 0 300 44" preserveAspectRatio="none" aria-hidden="true"><polyline points=""/></svg>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="metal"><span class="swatch silver"></span>Silver</div>
+          <select id="unitXAG" aria-label="Silver price unit"></select>
+        </div>
+        <div class="price" id="priceXAG">–</div>
+        <div class="per" id="perXAG">&nbsp;</div>
+        <div class="change" id="changeXAG"></div>
+        <svg class="spark silver" id="sparkXAG" viewBox="0 0 300 44" preserveAspectRatio="none" aria-hidden="true"><polyline points=""/></svg>
+      </article>
+    </section>
+
+    <section class="facts" aria-label="Market details">
+      <div class="fact"><div class="k">Gold to silver ratio</div><div class="v" id="ratio">–</div></div>
+      <div class="fact"><div class="k">USD to INR</div><div class="v" id="fx">–</div></div>
+      <div class="fact"><div class="k">Gold / Silver per ounce (USD)</div><div class="v" id="ozBoth">–</div></div>
+    </section>
+
+    <section class="calc" id="calculator" aria-label="Value calculator">
+      <h2>Value calculator</h2>
+      <div class="calc-grid">
+        <div class="field">
+          <label for="cMetal">Metal</label>
+          <select id="cMetal"><option value="XAU">Gold</option><option value="XAG">Silver</option></select>
+        </div>
+        <div class="field">
+          <label for="cWeight">Weight</label>
+          <input id="cWeight" type="number" min="0" step="any" value="10" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="cUnit">Weight unit</label>
+          <select id="cUnit">
+            <option value="g">Gram</option>
+            <option value="tola">Tola</option>
+            <option value="kg">Kilogram</option>
+            <option value="oz">Troy ounce</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cPurity">Purity</label>
+          <select id="cPurity"></select>
+        </div>
+      </div>
+      <div class="result">
+        <div class="big" id="cResult">–</div>
+        <div class="small">Spot value. GST, import duty and making charges are not included.</div>
+      </div>
+    </section>
+
+    <p class="note">These are international spot prices converted to your selected currency. Local jewellers and bullion dealers in India charge import duty, GST and their own margin, so the rate you pay will differ. For information only, not financial advice.</p>
+
+    <section class="about" aria-label="About the developer">
+      <div>
+        <h2>Built by Aaditya Kumar</h2>
+        <p>Web developer. I build simple, free tools for everyday use.</p>
+      </div>
+      <div class="about-actions">
+        <a class="btn btn-primary" href="https://aadityakumar.in/tools">Explore more tools</a>
+        <a class="btn btn-outline" href="https://aadityakumar.in/">Visit main website</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> <a href="https://aadityakumar.in/">Aaditya Kumar</a></span>
+    <span>Price data: gold-api.com, Swissquote, open.er-api.com</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var OZ_G = 31.1034768;
+  var UNITS = {
+    oz:   { label: "per troy ounce", grams: OZ_G },
+    g:    { label: "per gram",       grams: 1 },
+    "10g":{ label: "per 10 grams",   grams: 10 },
+    tola: { label: "per tola (11.66 g)", grams: 11.6638038 },
+    kg:   { label: "per kilogram",   grams: 1000 }
+  };
+  var UNIT_OPTIONS = [["oz","Ounce"],["g","Gram"],["10g","10 grams"],["tola","Tola"],["kg","Kilogram"]];
+  var PURITY = {
+    XAU: [["1","24K (99.9%)"],["0.9167","22K (91.6%)"],["0.75","18K (75%)"],["0.585","14K (58.5%)"]],
+    XAG: [["0.999","Fine (99.9%)"],["0.925","Sterling (92.5%)"],["0.8","800 silver"]]
+  };
+
+  var REFRESH_MS = 60000;
+  var HIST_KEY = "ak_gs_hist_v1";
+  var PREF_KEY = "ak_gs_pref_v1";
+  var FX_KEY = "ak_gs_fx_v1";
+
+  var state = {
+    xau: null, xag: null, fx: null,
+    cur: "INR",
+    units: { XAU: "10g", XAG: "kg" },
+    prev: { XAU: null, XAG: null },
+    lastOk: null,
+    timer: null
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function load(key, fallback) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
+  }
+  function save(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+  }
+
+  function fetchJSON(url, ms) {
+    var ctrl = new AbortController();
+    var t = setTimeout(function () { ctrl.abort(); }, ms || 8000);
+    return fetch(url, { signal: ctrl.signal, cache: "no-store" })
+      .then(function (r) { clearTimeout(t); if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .catch(function (e) { clearTimeout(t); throw e; });
+  }
+
+  function getMetal(sym) {
+    return fetchJSON("https://api.gold-api.com/price/" + sym)
+      .then(function (d) {
+        var p = Number(d && d.price);
+        if (!isFinite(p) || p <= 0) throw new Error("bad price");
+        return p;
+      })
+      .catch(function () {
+        return fetchJSON("https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/" + sym + "/USD")
+          .then(function (arr) {
+            var prof = arr && arr[0] && arr[0].spreadProfilePrices && arr[0].spreadProfilePrices[0];
+            var p = prof ? (Number(prof.bid) + Number(prof.ask)) / 2 : NaN;
+            if (!isFinite(p) || p <= 0) throw new Error("bad backup price");
+            return p;
+          });
+      });
+  }
+
+  function getFX() {
+    var cached = load(FX_KEY, null);
+    if (cached && Date.now() - cached.t < 3600000) return Promise.resolve(cached.rate);
+    return fetchJSON("https://open.er-api.com/v6/latest/USD")
+      .then(function (d) {
+        var r = Number(d && d.rates && d.rates.INR);
+        if (!isFinite(r) || r <= 0) throw new Error("bad fx");
+        return r;
+      })
+      .catch(function () {
+        return fetchJSON("https://api.frankfurter.app/latest?from=USD&to=INR").then(function (d) {
+          var r = Number(d && d.rates && d.rates.INR);
+          if (!isFinite(r) || r <= 0) throw new Error("bad fx backup");
+          return r;
+        });
+      })
+      .then(function (rate) { save(FX_KEY, { t: Date.now(), rate: rate }); return rate; })
+      .catch(function () { return cached ? cached.rate : null; });
+  }
+
+  function pushHistory(xau, xag) {
+    var h = load(HIST_KEY, []);
+    var now = Date.now();
+    var cutoff = now - 24 * 3600 * 1000;
+    h = h.filter(function (p) { return p.t >= cutoff; });
+    var last = h[h.length - 1];
+    if (!last || now - last.t >= 50000) h.push({ t: now, xau: xau, xag: xag });
+    if (h.length > 1600) h = h.slice(h.length - 1600);
+    save(HIST_KEY, h);
+    return h;
+  }
+
+  function money(v, cur) {
+    if (v == null || !isFinite(v)) return "–";
+    var dec = Math.abs(v) >= 100000 ? 0 : 2;
+    return new Intl.NumberFormat(cur === "INR" ? "en-IN" : "en-US", {
+      style: "currency", currency: cur, minimumFractionDigits: dec, maximumFractionDigits: dec
+    }).format(v);
+  }
+
+  function factor(unit) {
+    var fx = state.cur === "INR" ? state.fx : 1;
+    if (fx == null) return null;
+    return (UNITS[unit].grams / OZ_G) * fx;
+  }
+
+  function renderSpark(sym, hist) {
+    var svg = $("spark" + sym);
+    var poly = svg.querySelector("polyline");
+    var key = sym.toLowerCase();
+    var pts = hist.map(function (p) { return { t: p.t, v: p[key] }; }).filter(function (p) { return isFinite(p.v); });
+    if (pts.length < 2) { poly.setAttribute("points", ""); svg.classList.add("empty"); return; }
+    svg.classList.remove("empty");
+    var min = Infinity, max = -Infinity;
+    pts.forEach(function (p) { if (p.v < min) min = p.v; if (p.v > max) max = p.v; });
+    var span = max - min || 1;
+    var t0 = pts[0].t, tSpan = pts[pts.length - 1].t - t0 || 1;
+    poly.setAttribute("points", pts.map(function (p) {
+      return (((p.t - t0) / tSpan) * 300).toFixed(1) + "," + (40 - ((p.v - min) / span) * 36).toFixed(1);
+    }).join(" "));
+  }
+
+  function renderChange(sym, hist) {
+    var el = $("change" + sym);
+    var key = sym.toLowerCase();
+    var now = state[key];
+    var f = factor(state.units[sym]);
+    var base = null;
+    for (var i = 0; i < hist.length; i++) { if (isFinite(hist[i][key])) { base = hist[i]; break; } }
+    el.className = "change";
+    if (!base || now == null || f == null || Date.now() - base.t < 5 * 60000) {
+      el.textContent = "Change tracking starts from your first visit";
+      return;
+    }
+    var diffUsd = now - base[key];
+    var pct = (diffUsd / base[key]) * 100;
+    var sign = diffUsd > 0 ? "+" : diffUsd < 0 ? "−" : "";
+    var mins = Math.round((Date.now() - base.t) / 60000);
+    var span = mins >= 120 ? Math.round(mins / 60) + " hours" : mins + " minutes";
+    el.textContent = sign + money(Math.abs(diffUsd * f), state.cur) + " (" + sign + Math.abs(pct).toFixed(2) + "%) in the last " + span;
+    el.className = "change " + (diffUsd > 0 ? "up" : diffUsd < 0 ? "down" : "");
+  }
+
+  function renderPrice(sym) {
+    var key = sym.toLowerCase();
+    var unit = state.units[sym];
+    var f = factor(unit);
+    var priceEl = $("price" + sym);
+    var perEl = $("per" + sym);
+    if (state[key] == null) { priceEl.textContent = "–"; perEl.innerHTML = "&nbsp;"; return; }
+    if (f == null) { priceEl.textContent = "INR rate unavailable"; perEl.textContent = "Switch to USD"; return; }
+    priceEl.textContent = money(state[key] * f, state.cur);
+    perEl.textContent = UNITS[unit].label;
+    var prev = state.prev[sym];
+    if (prev != null && prev !== state[key]) {
+      priceEl.classList.remove("flash-up", "flash-down");
+      void priceEl.offsetWidth;
+      priceEl.classList.add(state[key] > prev ? "flash-up" : "flash-down");
+    }
+  }
+
+  function renderStats() {
+    if (state.xau && state.xag) $("ratio").textContent = (state.xau / state.xag).toFixed(2);
+    $("fx").textContent = state.fx ? "₹" + state.fx.toFixed(2) : "–";
+    $("ozBoth").textContent = (state.xau && state.xag) ? money(state.xau, "USD") + " / " + money(state.xag, "USD") : "–";
+  }
+
+  function renderCalc() {
+    var key = $("cMetal").value.toLowerCase();
+    var w = parseFloat($("cWeight").value);
+    var unit = $("cUnit").value;
+    var purity = parseFloat($("cPurity").value);
+    var fx = state.cur === "INR" ? state.fx : 1;
+    if (state[key] == null || fx == null || !isFinite(w) || w < 0) { $("cResult").textContent = "–"; return; }
+    $("cResult").textContent = money((state[key] / OZ_G) * w * UNITS[unit].grams * purity * fx, state.cur);
+  }
+
+  function renderAll() {
+    var hist = load(HIST_KEY, []);
+    ["XAU", "XAG"].forEach(function (s) { renderPrice(s); renderChange(s, hist); renderSpark(s, hist); });
+    renderStats();
+    renderCalc();
+  }
+
+  function setStatus(kind, text) {
+    $("status").className = "status " + (kind || "");
+    $("statusText").textContent = text;
+  }
+
+  function updateStatusLine() {
+    if (!state.lastOk) return;
+    var secs = Math.round((Date.now() - state.lastOk) / 1000);
+    var ago = secs < 5 ? "just now" : secs < 60 ? secs + "s ago" : Math.round(secs / 60) + " min ago";
+    setStatus("live", "Live. Updated " + ago);
+  }
+
+  var busy = false;
+  function refresh() {
+    if (busy) return;
+    busy = true;
+    $("refreshBtn").disabled = true;
+    $("refreshBtn").classList.add("spinning");
+    Promise.all([
+      getMetal("XAU").then(function (v) { return { ok: true, v: v }; }, function () { return { ok: false }; }),
+      getMetal("XAG").then(function (v) { return { ok: true, v: v }; }, function () { return { ok: false }; }),
+      getFX()
+    ]).then(function (res) {
+      var g = res[0], s = res[1], fx = res[2];
+      state.prev.XAU = state.xau;
+      state.prev.XAG = state.xag;
+      if (g.ok) state.xau = g.v;
+      if (s.ok) state.xag = s.v;
+      if (fx) state.fx = fx;
+      if (g.ok && s.ok) {
+        state.lastOk = Date.now();
+        pushHistory(state.xau, state.xag);
+        updateStatusLine();
+      } else if (g.ok || s.ok) {
+        state.lastOk = Date.now();
+        setStatus("error", "Only " + (g.ok ? "gold" : "silver") + " updated. Retrying soon.");
+      } else {
+        setStatus("error", state.xau
+          ? "Price source unreachable. Showing last price."
+          : "Could not load prices. Check your connection and press Refresh.");
+      }
+      renderAll();
+    }).then(function () {
+      busy = false;
+      $("refreshBtn").disabled = false;
+      $("refreshBtn").classList.remove("spinning");
+    });
+  }
+
+  function schedule() {
+    clearInterval(state.timer);
+    state.timer = setInterval(function () {
+      if (document.hidden) return;
+      if (!state.lastOk || Date.now() - state.lastOk >= REFRESH_MS - 500) refresh();
+      else updateStatusLine();
+    }, 1000);
+  }
+
+  function fillUnitSelect(sel, current) {
+    sel.innerHTML = "";
+    UNIT_OPTIONS.forEach(function (o) {
+      var opt = document.createElement("option");
+      opt.value = o[0]; opt.textContent = o[1];
+      if (o[0] === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function fillPurity() {
+    var sel = $("cPurity");
+    sel.innerHTML = "";
+    PURITY[$("cMetal").value].forEach(function (o) {
+      var opt = document.createElement("option");
+      opt.value = o[0]; opt.textContent = o[1];
+      sel.appendChild(opt);
+    });
+  }
+
+  function savePrefs() { save(PREF_KEY, { cur: state.cur, units: state.units }); }
+
+  function init() {
+    $("year").textContent = new Date().getFullYear();
+
+    var pref = load(PREF_KEY, null);
+    if (pref) {
+      if (pref.cur === "USD" || pref.cur === "INR") state.cur = pref.cur;
+      if (pref.units) {
+        if (UNITS[pref.units.XAU]) state.units.XAU = pref.units.XAU;
+        if (UNITS[pref.units.XAG]) state.units.XAG = pref.units.XAG;
+      }
+    }
+    var cachedFx = load(FX_KEY, null);
+    if (cachedFx && cachedFx.rate) state.fx = cachedFx.rate;
+
+    fillUnitSelect($("unitXAU"), state.units.XAU);
+    fillUnitSelect($("unitXAG"), state.units.XAG);
+    fillPurity();
+
+    document.querySelectorAll("[data-cur]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.cur === state.cur));
+      b.addEventListener("click", function () {
+        state.cur = b.dataset.cur;
+        document.querySelectorAll("[data-cur]").forEach(function (x) {
+          x.setAttribute("aria-pressed", String(x.dataset.cur === state.cur));
+        });
+        savePrefs();
+        state.prev.XAU = state.prev.XAG = null;
+        renderAll();
+      });
+    });
+
+    $("unitXAU").addEventListener("change", function (e) { state.units.XAU = e.target.value; savePrefs(); state.prev.XAU = null; renderAll(); });
+    $("unitXAG").addEventListener("change", function (e) { state.units.XAG = e.target.value; savePrefs(); state.prev.XAG = null; renderAll(); });
+    $("cMetal").addEventListener("change", function () { fillPurity(); renderCalc(); });
+    ["cWeight", "cUnit", "cPurity"].forEach(function (id) {
+      $(id).addEventListener("input", renderCalc);
+      $(id).addEventListener("change", renderCalc);
+    });
+    $("refreshBtn").addEventListener("click", refresh);
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden && (!state.lastOk || Date.now() - state.lastOk > REFRESH_MS)) refresh();
+    });
+
+    renderAll();
+    refresh();
+    schedule();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
