@@ -166,7 +166,7 @@
     <a class="brand" href="https://aadityakumar.in/">Aaditya Kumar</a>
     <nav class="nav" aria-label="Site">
       <a class="hide-sm" href="https://aadityakumar.in/">Home</a>
-      <a class="current" href="https://aadityakumar.in/tools">More Tools ↗ </a>
+      <a class="current" href="https://aadityakumar.in/tools">More Tools</a>
     </nav>
   </div>
 </div>
@@ -247,11 +247,11 @@
       </div>
       <div class="result">
         <div class="big" id="cResult">–</div>
-        <div class="small">Spot value. GST, import duty and making charges are not included.</div>
+        <div class="small" id="cNote"></div>
       </div>
     </section>
 
-    <p class="note">These are international spot prices converted to your selected currency. Local jewellers and bullion dealers in India charge import duty, GST and their own margin, so the rate you pay will differ. For information only, not financial advice.</p>
+    <p class="note">INR prices are estimated India rates: the international spot price converted to rupees, plus an estimated import duty and local premium. USD prices are international spot. Actual rates vary by city and dealer, and GST and making charges are extra. For information only, not financial advice.</p>
 
     <section class="about" aria-label="About the developer">
       <div>
@@ -295,6 +295,10 @@
   var HIST_KEY = "ak_gs_hist_v1";
   var PREF_KEY = "ak_gs_pref_v1";
   var FX_KEY = "ak_gs_fx_v1";
+
+  // Estimated % added over international spot (import duty + local premium) for the "India rate" view.
+  // Edit these two numbers whenever duty changes or you want to match local bullion rates more closely.
+  var INDIA_PREMIUM = { XAU: 19, XAG: 19 };
 
   var state = {
     xau: null, xag: null, fx: null,
@@ -380,10 +384,14 @@
     }).format(v);
   }
 
-  function factor(unit) {
+  function indiaOn() { return state.cur === "INR"; }
+
+  function premium(sym) { return indiaOn() ? 1 + INDIA_PREMIUM[sym] / 100 : 1; }
+
+  function factor(unit, sym) {
     var fx = state.cur === "INR" ? state.fx : 1;
     if (fx == null) return null;
-    return (UNITS[unit].grams / OZ_G) * fx;
+    return (UNITS[unit].grams / OZ_G) * fx * premium(sym);
   }
 
   function renderSpark(sym, hist) {
@@ -406,7 +414,7 @@
     var el = $("change" + sym);
     var key = sym.toLowerCase();
     var now = state[key];
-    var f = factor(state.units[sym]);
+    var f = factor(state.units[sym], sym);
     var base = null;
     for (var i = 0; i < hist.length; i++) { if (isFinite(hist[i][key])) { base = hist[i]; break; } }
     el.className = "change";
@@ -426,7 +434,7 @@
   function renderPrice(sym) {
     var key = sym.toLowerCase();
     var unit = state.units[sym];
-    var f = factor(unit);
+    var f = factor(unit, sym);
     var priceEl = $("price" + sym);
     var perEl = $("per" + sym);
     if (state[key] == null) { priceEl.textContent = "–"; perEl.innerHTML = "&nbsp;"; return; }
@@ -448,13 +456,17 @@
   }
 
   function renderCalc() {
-    var key = $("cMetal").value.toLowerCase();
+    var sym = $("cMetal").value;
+    var key = sym.toLowerCase();
     var w = parseFloat($("cWeight").value);
     var unit = $("cUnit").value;
     var purity = parseFloat($("cPurity").value);
     var fx = state.cur === "INR" ? state.fx : 1;
+    $("cNote").textContent = indiaOn()
+      ? "Estimated India rate. GST and making charges are not included."
+      : "Spot value. GST, import duty and making charges are not included.";
     if (state[key] == null || fx == null || !isFinite(w) || w < 0) { $("cResult").textContent = "–"; return; }
-    $("cResult").textContent = money((state[key] / OZ_G) * w * UNITS[unit].grams * purity * fx, state.cur);
+    $("cResult").textContent = money((state[key] / OZ_G) * w * UNITS[unit].grams * purity * fx * premium(sym), state.cur);
   }
 
   function renderAll() {
