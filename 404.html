@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found (404) | Aaditya Kumar</title>
+<meta name="description" content="The page you are looking for could not be found. Head back to the home page, blog or tools.">
+<meta name="robots" content="noindex, follow">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121826'/%3E%3Ctext x='32' y='42' font-family='Arial,sans-serif' font-size='28' font-weight='800' text-anchor='middle' fill='%23ffe156'%3EAK%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!--
+  Same design system as index.html: Syne + DM Sans, light "Professional" palette,
+  and the Personal dark palette when the visitor's device is in dark mode.
+  Links are absolute so this page works at any broken URL (for example /blog/old/x).
+-->
+<style>
+  :root {
+    --font-display: 'Syne', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --surface-2: #eaedf2;
+    --text: #121826;
+    --muted: #4b5568;
+    --faint: #5d677a;
+    --line: #dbdfe7;
+    --focus: #1f6fb2;
+    --yellow: #ffe156;
+    --ink: #121826;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0a0f;
+      --surface: #14151d;
+      --surface-2: #1d1f2b;
+      --text: #f3f4f8;
+      --muted: #aab0c2;
+      --faint: #8d93a8;
+      --line: rgba(255, 255, 255, .13);
+      --focus: #00f5d4;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    background: var(--bg); color: var(--text);
+    font: 400 1rem/1.65 var(--font-body);
+    -webkit-font-smoothing: antialiased; overflow-x: clip;
+  }
+  h1, p, ul { margin: 0; }
+  ul { padding: 0; list-style: none; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 8px; }
+  .visually-hidden { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .skip { position: fixed; top: 8px; left: 8px; z-index: 10; padding: .7rem 1rem; border-radius: 10px; background: var(--yellow); color: var(--ink); font-weight: 700; text-decoration: none; transform: translateY(-200%); }
+  .skip:focus { transform: none; }
+  .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+  .icon { width: 1.15em; height: 1.15em; flex: none; }
+
+  /* ---------- Header ---------- */
+  .top { height: 64px; }
+  .top .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .wordmark { display: inline-flex; align-items: center; min-height: 44px; font: 800 1.1rem/1 var(--font-display); letter-spacing: -.01em; text-decoration: none; white-space: nowrap; }
+  .report {
+    display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; padding: 0 1.1rem;
+    border: 1.5px solid var(--text); border-radius: 999px; text-decoration: none;
+    font: 700 .88rem/1 var(--font-display); white-space: nowrap;
+    transition: background-color .2s, color .2s, transform .2s var(--ease);
+  }
+  .report:hover { background: var(--text); color: var(--bg); }
+  .report:active { transform: scale(.97); }
+  .report svg { fill: currentColor; }
+
+  /* ---------- Main ---------- */
+  main { position: relative; flex: 1; display: flex; align-items: center; padding-block: clamp(20px, 5vw, 56px) clamp(44px, 8vw, 96px); }
+  /* A quiet dot grid that fades out downwards: texture without noise */
+  main::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .7;
+    background-image: radial-gradient(var(--line) 1.2px, transparent 1.2px); background-size: 24px 24px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 75%); mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
+  }
+  .layout { position: relative; display: grid; gap: clamp(32px, 6vw, 48px); align-items: center; }
+  @media (min-width: 900px) { .layout { grid-template-columns: 1.05fr .95fr; gap: 72px; } }
+
+  .status {
+    display: inline-flex; align-items: center; gap: .55rem; padding: .4rem .9rem;
+    border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+    color: var(--muted); font-size: .9rem;
+  }
+  .status::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: #e5484d; box-shadow: 0 0 0 3px rgba(229, 72, 77, .2); }
+
+  /* The 0 is a magnifying glass: looking for a page that is not here */
+  .code {
+    display: flex; align-items: center; gap: .03em; margin: 1.1rem 0 .5rem;
+    font: 800 clamp(5.2rem, 26vw, 11.5rem)/.9 var(--font-display); letter-spacing: -.04em; font-variant-numeric: lining-nums;
+  }
+  .code > * { animation: rise .7s var(--ease) both; animation-delay: calc(var(--i) * 90ms + 60ms); }
+  .code svg { height: .8em; width: .8em; flex: none; margin-inline: .02em; overflow: visible; }
+  .ring { fill: var(--yellow); stroke: var(--text); stroke-width: 14; }
+  .handle { stroke: var(--text); stroke-width: 16; stroke-linecap: round; }
+  .q { fill: none; stroke: var(--ink); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; animation: draw .8s var(--ease) .7s both; }
+  .q-dot { fill: var(--ink); transform-origin: 44px 63px; animation: pop .35s var(--ease) 1.45s both; }
+
+  h1 { font: 800 clamp(1.9rem, 6vw, 2.9rem)/1.08 var(--font-display); letter-spacing: -.02em; }
+  mark { padding: 0 .22em; margin-inline: -.05em; border-radius: 8px; background: var(--yellow); color: var(--ink); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .lead { max-width: 32rem; margin-top: 1rem; color: var(--muted); font-size: clamp(1.02rem, 2.4vw, 1.18rem); }
+  .req { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .7rem; margin-top: 1.2rem; color: var(--faint); font-size: .92rem; }
+  .req code {
+    max-width: 100%; padding: .2rem .65rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text);
+    font: 500 .88rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere;
+  }
+
+  /* ---------- Destinations ---------- */
+  .go-title { margin-bottom: .9rem; color: var(--faint); font: 700 .8rem/1 var(--font-display); letter-spacing: .08em; text-transform: uppercase; }
+  .go { display: grid; gap: 10px; }
+  @media (min-width: 560px) { .go { grid-template-columns: repeat(3, 1fr); gap: 12px; } .go__home { grid-column: 1 / -1; } }
+  .go a {
+    position: relative; display: flex; align-items: center; gap: 1rem; min-height: 72px; padding: 1rem 1.2rem;
+    border: 1.5px solid var(--line); border-radius: 18px; background: var(--surface); text-decoration: none;
+    transition: transform .25s var(--ease), border-color .2s, box-shadow .25s;
+  }
+  .go a:hover { transform: translateY(-3px); border-color: var(--text); box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .35); }
+  .go a:active { transform: scale(.985); }
+  .ico { display: grid; place-items: center; width: 42px; height: 42px; flex: none; border-radius: 12px; background: var(--surface-2); }
+  .ico svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .txt b { display: block; font: 700 1.05rem/1.25 var(--font-display); }
+  .txt small { display: block; margin-top: .15rem; color: var(--faint); font: 500 .85rem/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .arrow { width: 20px; height: 20px; margin-left: auto; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s var(--ease); }
+  .go a:hover .arrow { transform: translateX(4px); }
+
+  .go__home a { min-height: 92px; padding: 1.2rem 1.4rem; border-color: var(--yellow); background: var(--yellow); color: var(--ink); }
+  .go__home a:hover { border-color: var(--yellow); }
+  .go__home .ico { width: 48px; height: 48px; background: var(--ink); color: var(--yellow); }
+  .go__home .txt b { font-size: 1.3rem; font-weight: 800; }
+  .go__home .txt small { color: #4b4220; }
+
+  @media (min-width: 560px) {
+    .go__small a { flex-wrap: wrap; align-content: space-between; gap: 1.6rem 0; min-height: 150px; padding: 1.1rem; }
+    .go__small .ico { order: 1; }
+    .go__small .arrow { order: 2; }
+    .go__small .txt { order: 3; flex: 1 0 100%; }
+  }
+
+  /* ---------- Footer ---------- */
+  .foot { border-top: 1px solid var(--line); padding-block: 1.2rem 1.5rem; color: var(--faint); font-size: .92rem; }
+  .foot .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem 1.5rem; }
+  .back {
+    min-height: 44px; padding: 0 .3rem; border: 0; background: none; color: var(--text); cursor: pointer;
+    font: 700 .92rem/1 var(--font-body); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--line); text-decoration-thickness: 2px;
+  }
+  .back:hover { text-decoration-color: currentColor; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+  @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes pop { from { opacity: 0; transform: scale(0); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; } }
+  @media (max-width: 360px) { .wrap { width: calc(100% - 32px); } .report { padding: 0 .9rem; } .wordmark { font-size: 1rem; } }
+  @media (max-width: 340px) { .report .more { display: none; } }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="wordmark" href="https://aadityakumar.in/">Aaditya Kumar</a>
+    <a class="report" href="https://telegram.dog/NexTrillionaire" target="_blank" rel="noopener noreferrer" aria-label="Report an issue on Telegram (opens in a new tab)">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      <span>Report<span class="more"> an issue</span></span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap layout">
+
+    <section aria-labelledby="t">
+      <p class="status">Error 404</p>
+
+      <!-- Decorative: the real message is the h1 below -->
+      <div class="code" aria-hidden="true">
+        <span style="--i:0">4</span>
+        <svg viewBox="0 0 100 100" style="--i:1" focusable="false">
+          <line class="handle" x1="72" y1="72" x2="91" y2="91"/>
+          <circle class="ring" cx="44" cy="44" r="34"/>
+          <path class="q" pathLength="1" d="M33 37c0-6 5-10 11-10s11 4 11 10c0 8-11 8-11 17"/>
+          <circle class="q-dot" cx="44" cy="63" r="3.8"/>
+        </svg>
+        <span style="--i:2">4</span>
+      </div>
+
+      <h1 id="t">Page <mark>not found</mark></h1>
+      <p class="lead">This page doesn't exist or has moved. Check the address, or continue to one of the sections.</p>
+      <p class="req" id="req" hidden>Requested address <code id="reqPath"></code></p>
+    </section>
+
+    <nav aria-labelledby="go-h">
+      <p class="go-title" id="go-h">Where to next</p>
+      <ul class="go">
+        <li class="go__home">
+          <a href="https://aadityakumar.in/">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg></span>
+            <span class="txt"><b>Visit Home page</b><small>aadityakumar.in</small></span>
+            <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </li>
+        <li class="go__small">
+          <a href="https://aadityakumar.in/blog">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h4"/></svg></span>
+            <span class="txt"><b>Visit Blog</b><small>/blog</small></span>
+            <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </li>
+        <li class="go__small">
+          <a href="https://aadityakumar.in/tools">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+            <span class="txt"><b>Visit Tools</b><small>/tools</small></span>
+            <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </li>
+        <li class="go__small">
+          <a href="https://aadityakumar.in/special">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5l-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></svg></span>
+            <span class="txt"><b>Visit Special</b><small>/special</small></span>
+            <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Aaditya Kumar</span>
+    <button class="back" id="back" type="button" hidden>Go back to the previous page</button>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Show the address that failed so a typo is easy to spot. textContent keeps it safe.
+  var path = location.pathname + location.search;
+  if (path.length > 140) path = path.slice(0, 137) + '...';
+  if (path && path !== '/') {
+    document.getElementById('reqPath').textContent = path;
+    document.getElementById('req').hidden = false;
+  }
+  // "Go back" only makes sense when there is a page to go back to.
+  var back = document.getElementById('back');
+  if (history.length > 1) {
+    back.hidden = false;
+    back.addEventListener('click', function () { history.back(); });
+  }
+  document.getElementById('year').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
